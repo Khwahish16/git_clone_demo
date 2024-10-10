@@ -1,0 +1,229 @@
+## QUESTION1
+
+library(ISLR)
+attach(Auto)
+dim(Auto)
+head(Auto)
+
+# Divide the dataset into training and he testing in 70-30
+set.seed(2)
+tr1=sample(1:nrow(Auto),round(nrow(Auto)*0.7,0))
+train1=Auto[tr1,]
+dim(train1)
+
+
+# polynomial of order 1
+m1=lm(mpg~horsepower,data=train1) #or
+m1=lm(mpg~horsepower,data=Auto,subset=tr1)
+summary(m1)
+
+observed=Auto[-tr1,]$mpg
+pred1=predict(m1,Auto[-tr1,])
+
+# MSE
+mean((observed-pred1)^2)
+
+#polynomial of order 2
+m2=lm(mpg~poly(horsepower,2,raw = TRUE),data=Auto,subset=tr1)
+summary(m2)
+
+observed2=Auto[-tr1,]$mpg
+pred2=predict(m2,Auto[-tr1,])
+
+# MSE
+mean((observed2-pred2)^2)
+
+# polynomial of order 3
+m3=lm(mpg~ poly(horsepower,3,raw=TRUE),data=Auto,subset=tr1)
+summary(m3)
+
+observed3=Auto[-tr1,]$mpg
+pred3=predict(m3,Auto[-tr1,])
+
+# MSE
+mean((observed3-pred3)^2)
+
+## using set seed 5
+set.seed(5)
+tr2=sample(1:nrow(Auto),round(nrow(Auto)*0.7,0))
+train2=Auto[tr2,]
+dim(train2)
+
+# polynomial of order 1
+m1.1=lm(mpg~horsepower,data=train2) #or
+m1.1=lm(mpg~horsepower,data=Auto,subset=tr2)
+summary(m1.1)
+
+observed1.1=Auto[-tr2,]$mpg
+pred1.1=predict(m1.1,Auto[-tr2,])
+
+# MSE
+mean((observed1.1-pred1.1)^2)
+
+
+#polynomial of order 2
+m2.1=lm(mpg~poly(horsepower,2,raw = TRUE),data=Auto,subset=tr2)
+summary(m2.1)
+
+observed2.1=Auto[-tr2,]$mpg
+pred2.1=predict(m2.1,Auto[-tr2,])
+
+# MSE
+mean((observed2.1-pred2.1)^2)
+
+
+# polynomial of order 3
+m3.1=lm(mpg~ poly(horsepower,3,raw=TRUE),data=Auto,subset=tr2)
+summary(m3.1)
+
+observed3.1=Auto[-tr2,]$mpg
+pred3.1=predict(m3.1,Auto[-tr2,])
+
+# MSE
+mean((observed3.1-pred3.1)^2)
+
+## using set seed 8
+set.seed(8)
+tr3=sample(1:nrow(Auto),round(nrow(Auto)*0.7,0))
+train3=Auto[tr3,]
+dim(train3)
+
+# polynomial of order 1
+m1.2=lm(mpg~horsepower,data=train3) #or
+m1.2=lm(mpg~horsepower,data=Auto,subset=tr3)
+summary(m1.2)
+
+observed1.2=Auto[-tr3,]$mpg
+pred1.2=predict(m1.2,Auto[-tr3,])
+
+# MSE
+mean((observed1.2-pred1.2)^2)
+
+
+#polynomial of order 2
+m2.2=lm(mpg~poly(horsepower,2,raw = TRUE),data=Auto,subset=tr3)
+summary(m2.2)
+
+observed2.2=Auto[-tr3,]$mpg
+pred2.2=predict(m2.2,Auto[-tr3,])
+
+# MSE
+mean((observed2.2-pred2.2)^2)
+
+
+# polynomial of order 3
+m3.2=lm(mpg~ poly(horsepower,3,raw=TRUE),data=Auto,subset=tr3)
+summary(m3.2)
+
+observed3.2=Auto[-tr3,]$mpg
+pred3.2=predict(m3.2,Auto[-tr3,])
+
+# MSE
+mean((observed3.2-pred3.2)^2)
+
+##order 2 is more significant 
+
+#LOOCV
+library(boot)
+
+poly_order= c(1:10)
+poly_order
+
+mod1=glm(mpg~poly(horsepower,1,raw=TRUE),data=Auto)
+cv_error1=cv.glm(Auto,mod1)$delta[1]
+cv_error1
+
+mod2=glm(mpg~poly(horsepower,2,raw=TRUE),data=Auto)
+cv_error2=cv.glm(Auto,mod2)$delta[1]
+cv_error2
+
+  #using for loop to avoid repitition of code 
+
+cv_error=rep(0,10)
+for (i in 1:10) {
+  model_LOOCV=glm(mpg~poly(horsepower,i,raw=TRUE),data=Auto)
+  cv_error[i]=cv.glm(Auto,model_LOOCV)$delta[1]
+}
+
+
+cv_error
+
+plot(poly_order,cv_error,type="b",xlab="Order of polynomial",ylab="LOOCV-MSE")
+
+
+# 10 cross validation
+cv_error_10=rep(0,10)
+for (i in 1:10) {
+  model_LOOCV_10=glm(mpg~poly(horsepower,i,raw=TRUE),data=Auto)
+  cv_error_10[i]=cv.glm(Auto,model_LOOCV_10,K=10)$delta[1]
+}
+
+
+cv_error_10
+
+plot(poly_order,cv_error_10,type="b",xlab="Order of polynomial",ylab="10 fold CV-MSE")
+
+## Question 2
+Advertising =read.csv("Advertising(2).csv")
+attach(Advertising)
+
+model1 =glm(Sales~TV)
+model2=glm(Sales~Radio)
+model3=glm(Sales~Newspaper)
+model4=glm(Sales~TV +Radio)
+model5=glm(Sales~TV+Newspaper)
+model6=glm(Sales~Radio +Newspaper)
+model7=glm(Sales~TV+Radio+Newspaper)
+
+set.seed(2)
+model11= c(1:7)
+CV_errorKF=rep(0,7)
+
+CV_errorKF[1]=cv.glm(Advertising,model1,K=10)$delta[1]
+CV_errorKF
+
+CV_errorKF[2]=cv.glm(Advertising,model2,K=10)$delta[1]
+CV_errorKF
+
+CV_errorKF[3]=cv.glm(Advertising,model3,K=10)$delta[1]
+CV_errorKF
+
+CV_errorKF[4]=cv.glm(Advertising,model4,K=10)$delta[1]
+CV_errorKF
+
+CV_errorKF[5]=cv.glm(Advertising,model5,K=10)$delta[1]
+CV_errorKF
+
+CV_errorKF[6]=cv.glm(Advertising,model6,K=10)$delta[1]
+CV_errorKF
+
+CV_errorKF[7]=cv.glm(Advertising,model7,K=10)$delta[1]
+CV_errorKF
+
+plot(model11,CV_errorKF,col="red",type="b")
+
+
+
+#model 4 is the appropriate model 
+
+
+
+
+
+
+
+
+
+
+## Question3 
+## Bootstrapping 
+x = 10*rexp(11)
+n = length(x)
+B = 1000
+M = rep(NA, B)
+M[1] = mean(x)
+for(i in 2:B)M[i] = mean(sample(x, replace=TRUE))
+y=mean(M)
+hist(M, main ="histogram of mean")
+
+hist(x1)
